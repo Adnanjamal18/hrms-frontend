@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/sidebar"
 import { Building2, Home, Users, Settings, Briefcase, FileText, ChevronUp, User2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import { authClient } from "@/app/better-auth"
 
 const items = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -25,6 +26,13 @@ const items = [
 
 export function AppSidebar() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { data: session } = authClient.useSession()
+
+  const handleSignOut = async () => {
+    await authClient.signOut()
+    navigate("/auth")
+  }
 
   return (
     <Sidebar variant="inset">
@@ -71,8 +79,8 @@ export function AppSidebar() {
                 <SidebarMenuButton className="h-14 px-3 rounded-md transition-all duration-200 hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent text-white">
                   <User2 className="h-5 w-5 opacity-80" />
                   <div className="flex flex-col gap-1 leading-none text-left">
-                    <span className="font-semibold text-sm">Admin User</span>
-                    <span className="text-[11px] text-slate-400 font-medium">admin@hrms.com</span>
+                    <span className="font-semibold text-sm">{session?.user?.name || "User"}</span>
+                    <span className="text-[11px] text-slate-400 font-medium">{session?.user?.email || ""}</span>
                   </div>
                   <ChevronUp className="ml-auto h-4 w-4 opacity-50" />
                 </SidebarMenuButton>
@@ -84,7 +92,7 @@ export function AppSidebar() {
                 <DropdownMenuItem>
                   <span>Billing</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                   <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
