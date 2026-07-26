@@ -1,23 +1,29 @@
-import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthPage } from './features/auth/AuthPage';
-import { DashboardLayout } from './layout/DashboardLayout';
-import { UsersList } from './features/dashboard/UsersList';
-import { LeaveManagement } from './features/dashboard/LeaveManagement';
+import { DashboardLayout } from './components/layout/DashboardLayout';
+import { DashboardPage } from './pages/DashboardPage';
+import { DepartmentsPage } from './pages/DepartmentsPage';
+import { Toaster } from "@/components/ui/sonner";
+import { EmployeesPage } from './pages/EmployeesPage';
+import { EmployeeDetailsPage } from './pages/EmployeeDetailsPage';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<UsersList />} />
-          <Route path="leave" element={<LeaveManagement />} />
-          <Route path="reports" element={<div className="p-8 text-slate-500">Reports Module (Coming Soon)</div>} />
-          <Route path="settings" element={<div className="p-8 text-slate-500">Settings Module (Coming Soon)</div>} />
-        </Route>
-        <Route path="/" element={<Navigate to="/auth" replace />} />
+        <Route path="/*" element={
+          <DashboardLayout>
+            <Routes>
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/departments" element={<DepartmentsPage />} />
+              <Route path="/employees" element={<EmployeesPage />} />
+              <Route path="/employees/:userId" element={<EmployeeDetailsPage />} />
+            </Routes>
+          </DashboardLayout>
+        } />
       </Routes>
+      <Toaster position="top-right" richColors />
     </BrowserRouter>
   );
 }
