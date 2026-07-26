@@ -1,14 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { createEmployee, updateEmployee, assignDepartment, type Employee, type CreateEmployeeDTO, type UpdateEmployeeDTO } from '../api/employees';
+import {
+  createEmployee,
+  updateEmployee,
+  assignDepartment,
+  type Employee,
+  type CreateEmployeeDTO,
+  type UpdateEmployeeDTO,
+} from '../api/employees';
 import { getDepartments } from '../api/departments';
 import { toast } from "sonner";
-import { X, Save, Briefcase, Link as LinkIcon, Building, MapPin, User } from 'lucide-react';
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { X, Save, Briefcase, Link as LinkIcon, Building, MapPin, User, Mail, Lock, Phone } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Props {
   onClose: () => void;
@@ -17,14 +24,28 @@ interface Props {
 
 export function EmployeeForm({ onClose, employeeToEdit }: Props) {
   const queryClient = useQueryClient();
-  
-  // Basic Fields
-  const [userId, setUserId] = useState(employeeToEdit?.userId?.toString() || '');
+
+  // Helper to extract assigned department ID
+  const getInitialDeptId = (emp: Employee | null) => {
+    if (!emp?.user?.departments?.length) return '';
+    const deptObj = emp.user.departments[0];
+    return (deptObj.departmentId || deptObj.department?.id || '').toString();
+  };
+
+  // User Credentials (for Creation)
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [mobile, setMobile] = useState('');
+  const [roleId, setRoleId] = useState('1'); // Default roleId: 1 (Employee)
+
+  // Employee Details
   const [experience, setExperience] = useState(employeeToEdit?.experience?.toString() || '0');
   const [resumeLink, setResumeLink] = useState(employeeToEdit?.resumeLink || '');
   const [linkedinUrl, setLinkedinUrl] = useState(employeeToEdit?.linkedinUrl || '');
   const [address, setAddress] = useState(employeeToEdit?.address || '');
-  
+
   // Bank Details
   const [accountNumber, setAccountNumber] = useState(employeeToEdit?.accountNumber || '');
   const [ifscCode, setIfscCode] = useState(employeeToEdit?.ifscCode || '');
@@ -32,7 +53,21 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
   const [branch, setBranch] = useState(employeeToEdit?.branch || '');
 
   // Department Assignment
-  const [departmentId, setDepartmentId] = useState<string>('');
+  const [departmentId, setDepartmentId] = useState<string>(getInitialDeptId(employeeToEdit));
+
+  useEffect(() => {
+    if (employeeToEdit) {
+      setExperience(employeeToEdit.experience?.toString() || '0');
+      setResumeLink(employeeToEdit.resumeLink || '');
+      setLinkedinUrl(employeeToEdit.linkedinUrl || '');
+      setAddress(employeeToEdit.address || '');
+      setAccountNumber(employeeToEdit.accountNumber || '');
+      setIfscCode(employeeToEdit.ifscCode || '');
+      setBankName(employeeToEdit.bankName || '');
+      setBranch(employeeToEdit.branch || '');
+      setDepartmentId(getInitialDeptId(employeeToEdit));
+    }
+  }, [employeeToEdit]);
 
   const { data: departments } = useQuery({
     queryKey: ['departments'],
@@ -41,38 +76,34 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
 
   const createMutation = useMutation({
     mutationFn: createEmployee,
-    onSuccess: (data) => {
-      if (departmentId) {
-        assignMutation.mutate({ userId: data.userId, departmentId: Number(departmentId) });
+    onSuccess: (res) => {
+      const createdUserId = res?.employee?.userId || res?.user?.id || res?.userId;
+      if (departmentId && createdUserId) {
+        assignMutation.mutate({ userId: Number(createdUserId), departmentId: Number(departmentId) });
       } else {
         finishSuccess();
       }
     },
     onError: (error: any) => {
-      let message = error.response?.data?.error || error.message || "Failed to create employee.";
-      if (message.includes("Foreign key constraint violated") || message.includes("employee_user_id_fkey")) {
-        message = "The User ID you entered does not exist in the system.";
-      }
+      const message = error.response?.data?.error || error.message || "Failed to create employee profile.";
       toast.error(message);
-    }
+    },
   });
 
   const updateMutation = useMutation({
     mutationFn: updateEmployee,
-    onSuccess: (data) => {
-      if (departmentId) {
-        assignMutation.mutate({ userId: data.userId, departmentId: Number(departmentId) });
+    onSuccess: (res) => {
+      const targetUserId = employeeToEdit?.userId || res?.userId;
+      if (departmentId && targetUserId) {
+        assignMutation.mutate({ userId: Number(targetUserId), departmentId: Number(departmentId) });
       } else {
         finishSuccess();
       }
     },
     onError: (error: any) => {
-      let message = error.response?.data?.error || error.message || "Failed to update employee.";
-      if (message.includes("Foreign key constraint violated") || message.includes("employee_user_id_fkey")) {
-        message = "The User ID you entered does not exist in the system.";
-      }
+      const message = error.response?.data?.error || error.message || "Failed to update employee profile.";
       toast.error(message);
-    }
+    },
   });
 
   const assignMutation = useMutation({
@@ -83,8 +114,8 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
     onError: (error: any) => {
       const message = error.response?.data?.error || error.message;
       toast.error(`Employee saved, but failed to assign department: ${message}`);
-      finishSuccess(); // Still close the form since employee was saved
-    }
+      finishSuccess();
+    },
   });
 
   const finishSuccess = () => {
@@ -95,30 +126,45 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const uId = Number(userId);
-    if (!uId) return toast.error('User ID is required');
 
-    const baseData = {
-      experience: Number(experience) || 0,
-      resumeLink: resumeLink || undefined,
-      linkedinUrl: linkedinUrl || undefined,
-      address: address || undefined,
-      accountNumber: accountNumber || undefined,
-      ifscCode: ifscCode || undefined,
-      bankName: bankName || undefined,
-      branch: branch || undefined,
-    };
+    if (!employeeToEdit) {
+      if (!fullName.trim() || !username.trim() || !email.trim() || !password.trim() || !mobile.trim()) {
+        return toast.error('Please fill in all required user account fields (Name, Username, Email, Password, Mobile)');
+      }
 
-    if (employeeToEdit) {
+      const createData: CreateEmployeeDTO = {
+        fullName: fullName.trim(),
+        username: username.trim(),
+        email: email.trim(),
+        password: password.trim(),
+        mobile: mobile.trim(),
+        roleId: Number(roleId) || 1,
+        experience: Number(experience) || 0,
+        resumeLink: resumeLink || undefined,
+        linkedinUrl: linkedinUrl || undefined,
+        address: address || undefined,
+        accountNumber: accountNumber || undefined,
+        ifscCode: ifscCode || undefined,
+        bankName: bankName || undefined,
+        branch: branch || undefined,
+      };
+
+      createMutation.mutate(createData);
+    } else {
+      const updateData: UpdateEmployeeDTO = {
+        experience: Number(experience) || 0,
+        resumeLink: resumeLink || undefined,
+        linkedinUrl: linkedinUrl || undefined,
+        address: address || undefined,
+        accountNumber: accountNumber || undefined,
+        ifscCode: ifscCode || undefined,
+        bankName: bankName || undefined,
+        branch: branch || undefined,
+      };
+
       updateMutation.mutate({
         userId: employeeToEdit.userId,
-        data: baseData as UpdateEmployeeDTO,
-      });
-    } else {
-      createMutation.mutate({
-        userId: uId,
-        data: baseData as CreateEmployeeDTO,
+        data: updateData,
       });
     }
   };
@@ -128,16 +174,25 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex justify-end transition-all">
       <div className="w-full max-w-xl h-full bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+        
+        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">
-              {employeeToEdit ? 'Edit Employee' : 'New Employee'}
+              {employeeToEdit ? `Edit Employee (User #${employeeToEdit.userId})` : 'New Employee Profile'}
             </h2>
             <p className="text-sm text-slate-500">
-              {employeeToEdit ? 'Update employee details and assignments.' : 'Fill in the details to create a new employee profile.'}
+              {employeeToEdit
+                ? 'Update work details, links, and banking info.'
+                : 'Fill in user credentials and HR details to create a new employee.'}
             </p>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 text-slate-500 hover:text-slate-900 hover:bg-slate-200">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="h-8 w-8 text-slate-500 hover:text-slate-900 hover:bg-slate-200"
+          >
             <X size={18} />
           </Button>
         </div>
@@ -145,28 +200,114 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
         <ScrollArea className="flex-1 min-h-0 p-6">
           <form id="employee-form" onSubmit={handleSubmit} className="space-y-8 pb-6">
             
-            {/* Basic Info */}
+            {/* User Account Information (Only for New Employee Creation) */}
+            {!employeeToEdit && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-slate-900 flex items-center gap-2 border-b pb-2">
+                  <User size={16} className="text-primary" />
+                  User Account Credentials
+                </h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="fullName"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
+                      placeholder="e.g. Abdullah Khan"
+                      className="focus-visible:ring-primary"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Username <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                      placeholder="e.g. abdullah"
+                      className="focus-visible:ring-primary"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                      <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        placeholder="abdullah@company.com"
+                        className="pl-9 focus-visible:ring-primary"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                      <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        placeholder="••••••••"
+                        className="pl-9 focus-visible:ring-primary"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="mobile">Mobile Number <span className="text-red-500">*</span></Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                      <Input
+                        id="mobile"
+                        type="tel"
+                        value={mobile}
+                        onChange={(e) => setMobile(e.target.value)}
+                        required
+                        placeholder="+1 555-0199"
+                        className="pl-9 focus-visible:ring-primary"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="roleId">Role</Label>
+                    <Select value={roleId} onValueChange={(val) => setRoleId(val ?? '1')}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Role">
+                          {roleId === '1' ? 'Employee' : roleId === '2' ? 'Manager' : roleId === '3' ? 'HR Admin' : 'Employee'}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Employee</SelectItem>
+                        <SelectItem value="2">Manager</SelectItem>
+                        <SelectItem value="3">HR Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Experience & Job Details */}
             <div className="space-y-4">
               <h3 className="text-sm font-medium text-slate-900 flex items-center gap-2 border-b pb-2">
-                <User size={16} className="text-primary" />
-                Basic Information
+                <Briefcase size={16} className="text-primary" />
+                Work & Experience
               </h3>
               
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="userId">User ID <span className="text-red-500">*</span></Label>
-                  <Input
-                    id="userId"
-                    type="number"
-                    value={userId}
-                    onChange={(e) => setUserId(e.target.value)}
-                    required
-                    disabled={!!employeeToEdit}
-                    placeholder="e.g. 101"
-                    className="focus-visible:ring-primary"
-                  />
-                  {!employeeToEdit && <p className="text-[11px] text-slate-500">Link to an existing user account ID.</p>}
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="experience">Experience (Years) <span className="text-red-500">*</span></Label>
                   <Input
@@ -180,31 +321,24 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
                     className="focus-visible:ring-primary"
                   />
                 </div>
-              </div>
-            </div>
 
-            {/* Department Assignment */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-medium text-slate-900 flex items-center gap-2 border-b pb-2">
-                <Briefcase size={16} className="text-primary" />
-                Job & Assignment
-              </h3>
-              
-              <div className="space-y-2">
-                <Label>Assign Department</Label>
-                <Select value={departmentId} onValueChange={setDepartmentId}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments?.map(dept => (
-                      <SelectItem key={dept.id} value={dept.id.toString()}>
-                        {dept.departmentName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-[11px] text-slate-500">Optional: Select a department to assign this employee to immediately.</p>
+                <div className="space-y-2">
+                  <Label>Assign Department</Label>
+                  <Select value={departmentId} onValueChange={(val) => setDepartmentId(val ?? '')}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a department">
+                        {departments?.find((dept) => dept.id.toString() === departmentId)?.departmentName || "Select a department"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {departments?.map((dept) => (
+                        <SelectItem key={dept.id} value={dept.id.toString()}>
+                          {dept.departmentName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
 
@@ -212,7 +346,7 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
             <div className="space-y-4">
               <h3 className="text-sm font-medium text-slate-900 flex items-center gap-2 border-b pb-2">
                 <LinkIcon size={16} className="text-primary" />
-                Links & Contact
+                Links & Address
               </h3>
               
               <div className="grid grid-cols-2 gap-4">
@@ -308,18 +442,19 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
           </form>
         </ScrollArea>
 
+        {/* Footer */}
         <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-3 mt-auto shrink-0">
-          <Button 
-            type="button" 
-            variant="outline" 
+          <Button
+            type="button"
+            variant="outline"
             onClick={onClose}
             disabled={isPending}
             className="hover:bg-slate-100 text-slate-700"
           >
             Cancel
           </Button>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             form="employee-form"
             disabled={isPending}
             className="bg-primary hover:bg-primary/90 text-white min-w-[120px] shadow-sm shadow-primary/20"

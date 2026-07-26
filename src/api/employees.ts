@@ -12,11 +12,31 @@ export interface Employee {
   branch?: string;
   leaveCount: number;
   userId: number;
+  user?: {
+    id: number;
+    username: string;
+    fullName: string;
+    email: string;
+    mobile: string;
+    roleId: number;
+    role?: { id?: number; rolename: string; rolecode?: number };
+    departments?: Array<{
+      id: number;
+      departmentId: number;
+      department?: { id: number; departmentName: string; departmentCode: number };
+    }>;
+  };
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface CreateEmployeeDTO {
+  username: string;
+  fullName: string;
+  email: string;
+  password: string;
+  mobile: string;
+  roleId: number;
   experience: number;
   resumeLink?: string;
   linkedinUrl?: string;
@@ -48,8 +68,8 @@ export const getEmployeeById = async (userId: number): Promise<Employee> => {
   return response.data;
 };
 
-export const createEmployee = async ({ userId, data }: { userId: number; data: CreateEmployeeDTO }): Promise<Employee> => {
-  const response = await apiClient.post(`/employees/createEmployee/${userId}`, data);
+export const createEmployee = async (data: CreateEmployeeDTO): Promise<any> => {
+  const response = await apiClient.post('/employees/createEmployee', data);
   return response.data;
 };
 

@@ -27,6 +27,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
+import { DeleteConfirmModal } from './DeleteConfirmModal';
+
 interface Props {
   onEdit: (employee: Employee) => void;
 }
@@ -37,6 +39,7 @@ export function EmployeeList({ onEdit }: Props) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
+  const [empToDelete, setEmpToDelete] = useState<Employee | null>(null);
 
   const { data: employees, isLoading, isError } = useQuery({
     queryKey: ['employees'],
@@ -48,6 +51,7 @@ export function EmployeeList({ onEdit }: Props) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
       toast.success("Employee deleted successfully");
+      setEmpToDelete(null);
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || error.message || "Failed to delete employee");
@@ -70,12 +74,20 @@ export function EmployeeList({ onEdit }: Props) {
         )
       },
       cell: ({ row }) => {
+        const emp = row.original;
+        const name = emp.user?.fullName || `User #${emp.userId}`;
+        const email = emp.user?.email;
+        const initial = name.charAt(0).toUpperCase();
+
         return (
           <div className="flex items-center gap-3 font-medium text-slate-900">
-            <div className="w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center font-bold text-xs uppercase">
-              U
+            <div className="w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center font-bold text-xs uppercase shrink-0">
+              {initial}
             </div>
-            User #{row.getValue("userId")}
+            <div className="flex flex-col">
+              <span className="font-semibold text-slate-900">{name}</span>
+              {email && <span className="text-xs text-slate-500 font-normal">{email}</span>}
+            </div>
           </div>
         )
       }
@@ -143,12 +155,7 @@ export function EmployeeList({ onEdit }: Props) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {
-                if (window.confirm('Are you sure you want to delete this employee?')) {
-                  deleteMutation.mutate(emp.userId);
-                }
-              }}
-              disabled={deleteMutation.isPending}
+              onClick={() => setEmpToDelete(emp)}
               className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50"
               title="Delete"
             >
@@ -261,6 +268,17 @@ export function EmployeeList({ onEdit }: Props) {
           </TableBody>
         </Table>
       </div>
+
+      {empToDelete && (
+        <DeleteConfirmModal
+          isOpen={true}
+          title="Delete Employee Record"
+          description={`Are you sure you want to delete ${empToDelete.user?.fullName || `User #${empToDelete.userId}`}? This action cannot be undone.`}
+          isPending={deleteMutation.isPending}
+          onConfirm={() => deleteMutation.mutate(empToDelete.userId)}
+          onClose={() => setEmpToDelete(null)}
+        />
+      )}
     </div>
   );
 }

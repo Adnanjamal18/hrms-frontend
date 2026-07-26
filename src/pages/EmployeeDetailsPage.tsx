@@ -1,8 +1,21 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getEmployeeById } from '../api/employees';
-import { ArrowLeft, Briefcase, MapPin, Link as LinkIcon, Building, User, Calendar, ExternalLink } from 'lucide-react';
-import { Button } from "@/components/ui/button"
+import {
+  ArrowLeft,
+  Briefcase,
+  MapPin,
+  Link as LinkIcon,
+  Building,
+  User,
+  Calendar,
+  ExternalLink,
+  Mail,
+  Phone,
+  Shield,
+  Building2,
+} from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 export function EmployeeDetailsPage() {
   const { userId } = useParams();
@@ -37,35 +50,57 @@ export function EmployeeDetailsPage() {
     );
   }
 
+  const fullName = employee.user?.fullName || `User #${employee.userId}`;
+  const username = employee.user?.username ? `@${employee.user.username}` : '';
+  const email = employee.user?.email || 'N/A';
+  const mobile = employee.user?.mobile || 'N/A';
+  const roleName = employee.user?.role?.rolename || 'Employee';
+
+  const assignedDept = employee.user?.departments?.[0]?.department?.departmentName || 'Not Assigned';
+
+  const initial = fullName.charAt(0).toUpperCase();
+
   return (
     <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/employees')} className="h-9 w-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate('/employees')}
+          className="h-9 w-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600"
+        >
           <ArrowLeft size={18} />
         </Button>
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
-            Employee Profile
+            {fullName}
             <span className="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               ID: {employee.userId}
             </span>
           </h1>
-          <p className="text-muted-foreground text-sm">View detailed HR and banking information.</p>
+          <p className="text-muted-foreground text-sm">
+            {username} • {roleName} Profile & HR Information
+          </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        {/* Left Column: Quick Stats */}
+        {/* Left Column: Quick Profile Summary Card */}
         <div className="flex flex-col gap-6">
           <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col items-center text-center">
-            <div className="w-24 h-24 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-3xl mb-4 uppercase shadow-inner">
-              U
+            <div className="w-24 h-24 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-3xl mb-4 uppercase shadow-inner border border-primary/20">
+              {initial}
             </div>
-            <h2 className="text-xl font-bold text-slate-900">User #{employee.userId}</h2>
-            <p className="text-slate-500 text-sm mb-4">Employee Record</p>
+            <h2 className="text-xl font-bold text-slate-900">{fullName}</h2>
+            <p className="text-slate-500 text-sm mb-2">{email}</p>
             
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-medium text-xs border border-emerald-200 mb-4">
+              <Shield size={12} />
+              {roleName}
+            </div>
+
             <div className="w-full pt-4 border-t border-slate-100 flex justify-around">
               <div>
                 <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold">Experience</p>
@@ -79,36 +114,52 @@ export function EmployeeDetailsPage() {
           </div>
         </div>
 
-        {/* Right Column: Details */}
+        {/* Right Column: Detailed Info Cards */}
         <div className="md:col-span-2 flex flex-col gap-6">
           
-          {/* Work & Contact Card */}
+          {/* Personal & Work Details Card */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex items-center gap-2">
               <Briefcase size={18} className="text-slate-500" />
-              <h3 className="font-semibold text-slate-800">Professional Details</h3>
+              <h3 className="font-semibold text-slate-800">Personal & Job Assignment</h3>
             </div>
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-slate-500 flex items-center gap-2"><Building2 size={14} /> Department</p>
+                <p className="text-slate-900 font-semibold">{assignedDept}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-slate-500 flex items-center gap-2"><Shield size={14} /> Role</p>
+                <p className="text-slate-900 font-semibold">{roleName}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-slate-500 flex items-center gap-2"><Mail size={14} /> Email</p>
+                <p className="text-slate-900">{email}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-slate-500 flex items-center gap-2"><Phone size={14} /> Mobile</p>
+                <p className="text-slate-900">{mobile}</p>
+              </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-slate-500 flex items-center gap-2"><MapPin size={14} /> Address</p>
                 <p className="text-slate-900">{employee.address || <span className="text-slate-400 italic">Not provided</span>}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium text-slate-500 flex items-center gap-2"><Calendar size={14} /> Joined</p>
+                <p className="text-sm font-medium text-slate-500 flex items-center gap-2"><Calendar size={14} /> Record Created</p>
                 <p className="text-slate-900">{employee.createdAt ? new Date(employee.createdAt).toLocaleDateString() : 'Unknown'}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-slate-500 flex items-center gap-2"><LinkIcon size={14} /> LinkedIn</p>
                 {employee.linkedinUrl ? (
-                  <a href={employee.linkedinUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                  <a href={employee.linkedinUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline flex items-center gap-1 font-medium">
                     View Profile <ExternalLink size={12} />
                   </a>
                 ) : <span className="text-slate-400 italic">Not provided</span>}
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium text-slate-500 flex items-center gap-2"><LinkIcon size={14} /> Resume</p>
+                <p className="text-sm font-medium text-slate-500 flex items-center gap-2"><LinkIcon size={14} /> Resume Document</p>
                 {employee.resumeLink ? (
-                  <a href={employee.resumeLink} target="_blank" rel="noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                  <a href={employee.resumeLink} target="_blank" rel="noreferrer" className="text-primary hover:underline flex items-center gap-1 font-medium">
                     View Document <ExternalLink size={12} />
                   </a>
                 ) : <span className="text-slate-400 italic">Not provided</span>}
