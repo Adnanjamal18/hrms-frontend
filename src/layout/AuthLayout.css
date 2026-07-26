@@ -1,0 +1,135 @@
+.auth-layout-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.auth-branding-side {
+  flex: 1;
+  display: none;
+  border-right: 1px solid var(--border-color);
+}
+
+@media (min-width: 1024px) {
+  .auth-branding-side {
+    display: flex;
+    flex-direction: column;
+    padding: 3rem 4rem;
+  }
+}
+
+.auth-form-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-main);
+  padding: 2rem;
+}
+
+.auth-form-container {
+  width: 100%;
+  max-width: 400px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.auth-branding-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 600px;
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: auto;
+}
+
+.auth-logo-icon {
+  background-color: var(--primary-color);
+  color: white;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.auth-logo-text {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--primary-color);
+}
+
+.auth-hero-text {
+  margin: auto 0;
+}
+
+.auth-hero-text h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.auth-hero-text p {
+  font-size: 1.125rem;
+  color: #475569;
+  line-height: 1.6;
+  max-width: 90%;
+}
+
+.auth-stats-footer {
+  display: flex;
+  gap: 3rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 2rem;
+  margin-top: auto;
+  margin-bottom: 2rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.stat-desc {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.auth-copyright {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.status-nominal {
+  color: #10b981;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
