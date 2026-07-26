@@ -30,7 +30,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onToggleSignUp, onToggle
       } else {
         // Handle successful sign in (e.g. redirect to dashboard)
         console.log("Signed in successfully:", data);
-        window.location.href = '/dashboard'; // Simple redirect for now
+        window.location.href = '/'; // Simple redirect to dashboard
       }
     } catch (err) {
       setError("An unexpected error occurred.");
