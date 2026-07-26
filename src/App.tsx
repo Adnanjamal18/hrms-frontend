@@ -6,21 +6,38 @@ import { DepartmentsPage } from './pages/DepartmentsPage';
 import { Toaster } from "@/components/ui/sonner";
 import { EmployeesPage } from './pages/EmployeesPage';
 import { EmployeeDetailsPage } from './pages/EmployeeDetailsPage';
+import { authClient } from './app/better-auth';
+
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  const { data: session, isPending } = authClient.useSession();
+
+  if (isPending) {
+    return <div className="flex h-screen items-center justify-center text-slate-500">Loading...</div>;
+  }
+
+  if (!session) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return <>{children}</>;
+}
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
-        <Route path="/*" element={
-          <DashboardLayout>
-            <Routes>
+        <Route path="/*" element={   
+          <RequireAuth>
+            <DashboardLayout>
+              <Routes>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/departments" element={<DepartmentsPage />} />
               <Route path="/employees" element={<EmployeesPage />} />
               <Route path="/employees/:userId" element={<EmployeeDetailsPage />} />
             </Routes>
           </DashboardLayout>
+          </RequireAuth>
         } />
       </Routes>
       <Toaster position="top-right" richColors />

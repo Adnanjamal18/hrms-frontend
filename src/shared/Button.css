@@ -3,8 +3,8 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
   padding: 0.875rem 1.5rem;
   border-radius: 6px;
   font-size: 1rem;
@@ -14,9 +14,9 @@
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--primary-hover);
+  opacity: 0.9;
   transform: translateY(-1px);
-  box-shadow: 0 6px 8px -1px rgba(37, 78, 219, 0.15), 0 3px 6px -2px rgba(37, 78, 219, 0.1);
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.1), 0 3px 6px -2px rgba(0, 0, 0, 0.1);
 }
 
 .btn-primary:active:not(:disabled) {
