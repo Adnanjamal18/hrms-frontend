@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getDepartments, deleteDepartment, type Department } from '../api/departments';
 import {
@@ -82,11 +82,13 @@ export function DepartmentList({ onEdit }: Props) {
   });
 
   // Apply custom filtering for manager assignment status
-  const departments = rawDepartments?.filter((dept) => {
-    if (managerFilter === 'assigned') return !!dept.managerId;
-    if (managerFilter === 'unassigned') return !dept.managerId;
-    return true;
-  });
+  const departments = useMemo(() => {
+    return rawDepartments?.filter((dept) => {
+      if (managerFilter === 'assigned') return !!dept.managerId;
+      if (managerFilter === 'unassigned') return !dept.managerId;
+      return true;
+    });
+  }, [rawDepartments, managerFilter]);
 
   const columns: ColumnDef<Department>[] = [
     {
@@ -111,7 +113,7 @@ export function DepartmentList({ onEdit }: Props) {
         );
       },
       cell: ({ row }) => {
-        const name = row.getValue("departmentName") as string;
+        const name = (row.getValue("departmentName") as string) || "Unnamed";
         return (
           <div className="flex items-center gap-3 font-semibold text-slate-900">
             <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs uppercase shrink-0">

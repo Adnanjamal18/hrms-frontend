@@ -50,13 +50,13 @@ export function EmployeeDetailsPage() {
     );
   }
 
-  const fullName = employee.user?.fullName || `User #${employee.userId}`;
-  const username = employee.user?.username ? `@${employee.user.username}` : '';
-  const email = employee.user?.email || 'N/A';
-  const mobile = employee.user?.mobile || 'N/A';
-  const roleName = employee.user?.role?.rolename || 'Employee';
+  const fullName = employee.fullName || `User #${employee.id}`;
+  const username = employee.username ? `@${employee.username}` : '';
+  const email = employee.email || 'N/A';
+  const mobile = employee.mobile || 'N/A';
+  const roleName = employee.role?.rolename || 'Employee';
 
-  const assignedDept = employee.user?.departments?.[0]?.department?.departmentName || 'Not Assigned';
+  const assignedDept = employee.departments?.[0]?.department?.departmentName || 'Not Assigned';
 
   const initial = fullName.charAt(0).toUpperCase();
 
@@ -76,7 +76,7 @@ export function EmployeeDetailsPage() {
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
             {fullName}
             <span className="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              ID: {employee.userId}
+              ID: {employee.id}
             </span>
           </h1>
           <p className="text-muted-foreground text-sm">

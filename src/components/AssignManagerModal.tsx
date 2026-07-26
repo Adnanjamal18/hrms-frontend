@@ -58,12 +58,11 @@ export function AssignManagerModal({ department, onClose }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!department) return;
-    const mId = Number(managerId);
-    if (!mId || isNaN(mId)) {
+    if (!managerId) {
       toast.error("Please select or enter a valid Manager User ID");
       return;
     }
-    assignMutation.mutate({ departmentId: department.id, managerId: mId });
+    assignMutation.mutate({ departmentId: department.id, managerId: managerId });
   };
 
   if (!department) return null;
@@ -92,17 +91,17 @@ export function AssignManagerModal({ department, onClose }: Props) {
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select an employee as manager">
                     {(() => {
-                      const matched = employees.find((emp) => String(emp.userId) === managerId);
+                      const matched = employees.find((emp) => String(emp.id) === managerId);
                       return matched
-                        ? `User #${matched.userId} ${matched.bankName ? `(${matched.bankName})` : ''} — ${matched.experience} Yrs Exp`
+                        ? `${matched.fullName || `User #${matched.id}`} — ${matched.experience || 0} Yrs Exp`
                         : "Select an employee as manager";
                     })()}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {employees.map((emp) => (
-                    <SelectItem key={emp.id} value={String(emp.userId)}>
-                      User #{emp.userId} {emp.bankName ? `(${emp.bankName})` : ''} — {emp.experience} Yrs Exp
+                    <SelectItem key={emp.id} value={String(emp.id)}>
+                      {emp.fullName || `User #${emp.id}`} — {emp.experience || 0} Yrs Exp
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -113,10 +112,10 @@ export function AssignManagerModal({ department, onClose }: Props) {
               <Label htmlFor="managerIdInput">Manager User ID <span className="text-destructive">*</span></Label>
               <Input
                 id="managerIdInput"
-                type="number"
+                type="text"
                 value={managerId}
                 onChange={(e) => setManagerId(e.target.value)}
-                placeholder="e.g. 1"
+                placeholder="e.g. clk12345..."
                 required
               />
             </div>
@@ -129,10 +128,10 @@ export function AssignManagerModal({ department, onClose }: Props) {
             </Label>
             <Input
               id="manualId"
-              type="number"
+              type="text"
               value={managerId}
               onChange={(e) => setManagerId(e.target.value)}
-              placeholder="e.g. 101"
+              placeholder="e.g. clk12345..."
               className="h-8 text-sm"
             />
           </div>

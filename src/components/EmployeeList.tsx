@@ -60,7 +60,7 @@ export function EmployeeList({ onEdit }: Props) {
 
   const columns: ColumnDef<Employee>[] = [
     {
-      accessorKey: "userId",
+      accessorKey: "id",
       header: ({ column }) => {
         return (
           <Button
@@ -68,15 +68,15 @@ export function EmployeeList({ onEdit }: Props) {
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             className="-ml-4 hover:bg-slate-100"
           >
-            User ID
+            ID
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         )
       },
       cell: ({ row }) => {
         const emp = row.original;
-        const name = emp.user?.fullName || `User #${emp.userId}`;
-        const email = emp.user?.email;
+        const name = emp.fullName || `User #${emp.id}`;
+        const email = emp.email;
         const initial = name.charAt(0).toUpperCase();
 
         return (
@@ -137,7 +137,7 @@ export function EmployeeList({ onEdit }: Props) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate(`/employees/${emp.userId}`)}
+              onClick={() => navigate(`/employees/${emp.id}`)}
               className="h-8 w-8 text-slate-400 hover:text-blue-600 hover:bg-blue-50"
               title="View Details"
             >
@@ -273,9 +273,9 @@ export function EmployeeList({ onEdit }: Props) {
         <DeleteConfirmModal
           isOpen={true}
           title="Delete Employee Record"
-          description={`Are you sure you want to delete ${empToDelete.user?.fullName || `User #${empToDelete.userId}`}? This action cannot be undone.`}
+          description={`Are you sure you want to delete ${empToDelete.fullName || `User #${empToDelete.id}`}? This action cannot be undone.`}
           isPending={deleteMutation.isPending}
-          onConfirm={() => deleteMutation.mutate(empToDelete.userId)}
+          onConfirm={() => deleteMutation.mutate(empToDelete.id)}
           onClose={() => setEmpToDelete(null)}
         />
       )}

@@ -145,7 +145,7 @@ export function DepartmentForm({ onClose, departmentToEdit }: Props) {
     assignManagerMutation.isPending;
 
   const selectedManager = employees?.find(
-    (emp) => emp.userId.toString() === selectedManagerId
+    (emp) => emp.id.toString() === selectedManagerId
   );
 
   return (
@@ -271,7 +271,7 @@ export function DepartmentForm({ onClose, departmentToEdit }: Props) {
                       {selectedManagerId === ""
                         ? "Not Assigned"
                         : selectedManager
-                        ? `${selectedManager.user?.fullName || `User #${selectedManager.userId}`} (${selectedManager.experience} Yrs Exp)`
+                        ? `${selectedManager.fullName || `User #${selectedManager.id}`} (${selectedManager.experience || 0} Yrs Exp)`
                         : `User #${selectedManagerId}`}
                     </SelectValue>
                   </SelectTrigger>
@@ -280,11 +280,11 @@ export function DepartmentForm({ onClose, departmentToEdit }: Props) {
                       <span className="text-slate-400 italic">Not Assigned</span>
                     </SelectItem>
                     {employees?.map((emp) => (
-                      <SelectItem key={emp.id} value={emp.userId.toString()}>
+                      <SelectItem key={emp.id} value={emp.id.toString()}>
                         <div className="flex items-center gap-2">
                           <UserCheck size={14} className="text-emerald-600" />
                           <span>
-                            {emp.user?.fullName || `User #${emp.userId}`} ({emp.experience} Yrs Exp)
+                            {emp.fullName || `User #${emp.id}`} ({emp.experience || 0} Yrs Exp)
                           </span>
                         </div>
                       </SelectItem>

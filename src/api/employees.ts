@@ -1,8 +1,13 @@
 import { apiClient } from './client';
 
 export interface Employee {
-  id: number;
-  experience: number;
+  id: string;
+  username: string;
+  fullName: string;
+  email: string;
+  mobile: string;
+  roleId: number;
+  experience?: number;
   resumeLink?: string;
   linkedinUrl?: string;
   address?: string;
@@ -10,22 +15,13 @@ export interface Employee {
   ifscCode?: string;
   bankName?: string;
   branch?: string;
-  leaveCount: number;
-  userId: number;
-  user?: {
+  leaveCount?: number;
+  role?: { id?: number; rolename: string; rolecode?: number };
+  departments?: Array<{
     id: number;
-    username: string;
-    fullName: string;
-    email: string;
-    mobile: string;
-    roleId: number;
-    role?: { id?: number; rolename: string; rolecode?: number };
-    departments?: Array<{
-      id: number;
-      departmentId: number;
-      department?: { id: number; departmentName: string; departmentCode: number };
-    }>;
-  };
+    departmentId: number;
+    department?: { id: number; departmentName: string; departmentCode: number };
+  }>;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -63,7 +59,7 @@ export const getEmployees = async (): Promise<Employee[]> => {
   return response.data;
 };
 
-export const getEmployeeById = async (userId: number): Promise<Employee> => {
+export const getEmployeeById = async (userId: string): Promise<Employee> => {
   const response = await apiClient.get(`/employees/getEmployeeById/${userId}`);
   return response.data;
 };
@@ -73,17 +69,17 @@ export const createEmployee = async (data: CreateEmployeeDTO): Promise<any> => {
   return response.data;
 };
 
-export const updateEmployee = async ({ userId, data }: { userId: number; data: UpdateEmployeeDTO }): Promise<Employee> => {
+export const updateEmployee = async ({ userId, data }: { userId: string; data: UpdateEmployeeDTO }): Promise<Employee> => {
   const response = await apiClient.put(`/employees/updateEmployee/${userId}`, data);
   return response.data;
 };
 
-export const deleteEmployee = async (userId: number): Promise<{ message: string }> => {
+export const deleteEmployee = async (userId: string): Promise<{ message: string }> => {
   const response = await apiClient.delete(`/employees/deleteEmployee/${userId}`);
   return response.data;
 };
 
-export const assignDepartment = async ({ userId, departmentId }: { userId: number; departmentId: number }): Promise<any> => {
+export const assignDepartment = async ({ userId, departmentId }: { userId: string; departmentId: number }): Promise<any> => {
   const response = await apiClient.post(`/employees/assignDepartment/${userId}`, { departmentId });
   return response.data;
 };

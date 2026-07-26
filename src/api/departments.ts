@@ -5,7 +5,7 @@ export interface Department {
   departmentName: string;
   departmentCode: number;
   departmentUrl?: string;
-  managerId?: number;
+  managerId?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -14,14 +14,14 @@ export interface CreateDepartmentDTO {
   departmentName: string;
   departmentCode: number;
   departmentUrl?: string;
-  managerId?: number;
+  managerId?: string;
 }
 
 export interface UpdateDepartmentDTO {
   departmentName?: string;
   departmentCode?: number;
   departmentUrl?: string;
-  managerId?: number;
+  managerId?: string;
 }
 
 export const getDepartments = async (): Promise<Department[]> => {
@@ -49,7 +49,7 @@ export const assignDepartmentManager = async ({
   managerId,
 }: {
   departmentId: number;
-  managerId: number;
+  managerId: string;
 }): Promise<Department> => {
   const response = await apiClient.post(
     `/departments/departments/${departmentId}/assign-manager`,

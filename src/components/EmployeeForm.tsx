@@ -27,8 +27,8 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
 
   // Helper to extract assigned department ID
   const getInitialDeptId = (emp: Employee | null) => {
-    if (!emp?.user?.departments?.length) return '';
-    const deptObj = emp.user.departments[0];
+    if (!emp?.departments?.length) return '';
+    const deptObj = emp.departments[0];
     return (deptObj.departmentId || deptObj.department?.id || '').toString();
   };
 
@@ -77,9 +77,9 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
   const createMutation = useMutation({
     mutationFn: createEmployee,
     onSuccess: (res) => {
-      const createdUserId = res?.employee?.userId || res?.user?.id || res?.userId;
+      const createdUserId = res?.employee?.id || res?.user?.id || res?.id;
       if (departmentId && createdUserId) {
-        assignMutation.mutate({ userId: Number(createdUserId), departmentId: Number(departmentId) });
+        assignMutation.mutate({ userId: createdUserId, departmentId: Number(departmentId) });
       } else {
         finishSuccess();
       }
@@ -93,9 +93,9 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
   const updateMutation = useMutation({
     mutationFn: updateEmployee,
     onSuccess: (res) => {
-      const targetUserId = employeeToEdit?.userId || res?.userId;
+      const targetUserId = employeeToEdit?.id || res?.id;
       if (departmentId && targetUserId) {
-        assignMutation.mutate({ userId: Number(targetUserId), departmentId: Number(departmentId) });
+        assignMutation.mutate({ userId: targetUserId, departmentId: Number(departmentId) });
       } else {
         finishSuccess();
       }
@@ -163,7 +163,7 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
       };
 
       updateMutation.mutate({
-        userId: employeeToEdit.userId,
+        userId: employeeToEdit.id,
         data: updateData,
       });
     }
@@ -179,7 +179,7 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">
-              {employeeToEdit ? `Edit Employee (User #${employeeToEdit.userId})` : 'New Employee Profile'}
+              {employeeToEdit ? `Edit Employee (User #${employeeToEdit.id})` : 'New Employee Profile'}
             </h2>
             <p className="text-sm text-slate-500">
               {employeeToEdit
