@@ -32,13 +32,13 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
     return (deptObj.departmentId || deptObj.department?.id || '').toString();
   };
 
-  // User Credentials (for Creation)
-  const [fullName, setFullName] = useState('');
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
+  // User Credentials
+  const [fullName, setFullName] = useState(employeeToEdit?.fullName || '');
+  const [username, setUsername] = useState(employeeToEdit?.username || '');
+  const [email, setEmail] = useState(employeeToEdit?.email || '');
   const [password, setPassword] = useState('');
-  const [mobile, setMobile] = useState('');
-  const [roleId, setRoleId] = useState('1'); // Default roleId: 1 (Employee)
+  const [mobile, setMobile] = useState(employeeToEdit?.mobile || '');
+  const [roleId, setRoleId] = useState(employeeToEdit?.roleId?.toString() || '2'); // Default roleId: 2 (Employee)
 
   // Employee Details
   const [experience, setExperience] = useState(employeeToEdit?.experience?.toString() || '0');
@@ -57,6 +57,12 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
 
   useEffect(() => {
     if (employeeToEdit) {
+      setFullName(employeeToEdit.fullName || '');
+      setUsername(employeeToEdit.username || '');
+      setEmail(employeeToEdit.email || '');
+      setPassword('');
+      setMobile(employeeToEdit.mobile || '');
+      setRoleId(employeeToEdit.roleId?.toString() || '2');
       setExperience(employeeToEdit.experience?.toString() || '0');
       setResumeLink(employeeToEdit.resumeLink || '');
       setLinkedinUrl(employeeToEdit.linkedinUrl || '');
@@ -77,7 +83,9 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
   const createMutation = useMutation({
     mutationFn: createEmployee,
     onSuccess: (res) => {
+      console.log("createEmployee response:", res);
       const createdUserId = res?.employee?.id || res?.user?.id || res?.id;
+      console.log("Extracted createdUserId:", createdUserId, "departmentId:", departmentId);
       if (departmentId && createdUserId) {
         assignMutation.mutate({ userId: createdUserId, departmentId: Number(departmentId) });
       } else {
@@ -152,6 +160,12 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
       createMutation.mutate(createData);
     } else {
       const updateData: UpdateEmployeeDTO = {
+        fullName: fullName.trim() || undefined,
+        username: username.trim() || undefined,
+        email: email.trim() || undefined,
+        password: password.trim() || undefined,
+        mobile: mobile.trim() || undefined,
+        roleId: Number(roleId) || undefined,
         experience: Number(experience) || 0,
         resumeLink: resumeLink || undefined,
         linkedinUrl: linkedinUrl || undefined,
@@ -200,13 +214,12 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
         <ScrollArea className="flex-1 min-h-0 p-6">
           <form id="employee-form" onSubmit={handleSubmit} className="space-y-8 pb-6">
             
-            {/* User Account Information (Only for New Employee Creation) */}
-            {!employeeToEdit && (
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium text-slate-900 flex items-center gap-2 border-b pb-2">
-                  <User size={16} className="text-primary" />
-                  User Account Credentials
-                </h3>
+            {/* User Account Information */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-slate-900 flex items-center gap-2 border-b pb-2">
+                <User size={16} className="text-primary" />
+                User Account Credentials
+              </h3>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -249,21 +262,23 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                      <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        placeholder="••••••••"
-                        className="pl-9 focus-visible:ring-primary"
-                      />
+                  {!employeeToEdit && (
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                        <Input
+                          id="password"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          placeholder="••••••••"
+                          className="pl-9 focus-visible:ring-primary"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="space-y-2">
                     <Label htmlFor="mobile">Mobile Number <span className="text-red-500">*</span></Label>
@@ -286,19 +301,18 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
                     <Select value={roleId} onValueChange={(val) => setRoleId(val ?? '1')}>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select Role">
-                          {roleId === '1' ? 'Employee' : roleId === '2' ? 'Manager' : roleId === '3' ? 'HR Admin' : 'Employee'}
+                          {roleId === '1' ? 'HR Admin' : roleId === '2' ? 'Employee' : roleId === '3' ? 'Manager' : 'Employee'}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">Employee</SelectItem>
-                        <SelectItem value="2">Manager</SelectItem>
-                        <SelectItem value="3">HR Admin</SelectItem>
+                        <SelectItem value="2">Employee</SelectItem>
+                        <SelectItem value="3">Manager</SelectItem>
+                        <SelectItem value="1">HR Admin</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
               </div>
-            )}
 
             {/* Experience & Job Details */}
             <div className="space-y-4">
@@ -324,7 +338,7 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
 
                 <div className="space-y-2">
                   <Label>Assign Department</Label>
-                  <Select value={departmentId} onValueChange={(val) => setDepartmentId(val ?? '')}>
+                  <Select key={`dept-select-${departments ? 'loaded' : 'loading'}-${departmentId}`} value={departmentId} onValueChange={(val) => setDepartmentId(val ?? '')}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select a department">
                         {departments?.find((dept) => dept.id.toString() === departmentId)?.departmentName || "Select a department"}

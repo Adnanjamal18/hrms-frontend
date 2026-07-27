@@ -23,7 +23,7 @@ export function EmployeeDetailsPage() {
 
   const { data: employee, isLoading, isError } = useQuery({
     queryKey: ['employee', userId],
-    queryFn: () => getEmployeeById(Number(userId)),
+    queryFn: () => getEmployeeById(userId as string),
     enabled: !!userId,
   });
 

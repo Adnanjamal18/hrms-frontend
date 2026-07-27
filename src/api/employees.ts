@@ -44,6 +44,12 @@ export interface CreateEmployeeDTO {
 }
 
 export interface UpdateEmployeeDTO {
+  username?: string;
+  fullName?: string;
+  email?: string;
+  password?: string;
+  mobile?: string;
+  roleId?: number;
   experience?: number;
   resumeLink?: string;
   linkedinUrl?: string;
