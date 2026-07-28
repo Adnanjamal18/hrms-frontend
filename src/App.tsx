@@ -3,6 +3,8 @@ import { AuthPage } from './features/auth/AuthPage';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { DashboardPage } from './pages/DashboardPage';
 import { DepartmentsPage } from './pages/DepartmentsPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { LeavesPage } from './pages/LeavesPage';
 import { Toaster } from "@/components/ui/sonner";
 import { EmployeesPage } from './pages/EmployeesPage';
 import { EmployeeDetailsPage } from './pages/EmployeeDetailsPage';
@@ -35,6 +37,8 @@ function App() {
               <Route path="/departments" element={<DepartmentsPage />} />
               <Route path="/employees" element={<EmployeesPage />} />
               <Route path="/employees/:userId" element={<EmployeeDetailsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/leaves" element={<LeavesPage />} />
             </Routes>
           </DashboardLayout>
           </RequireAuth>
