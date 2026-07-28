@@ -6,6 +6,8 @@ import { DepartmentsPage } from './pages/DepartmentsPage';
 import { Toaster } from "@/components/ui/sonner";
 import { EmployeesPage } from './pages/EmployeesPage';
 import { EmployeeDetailsPage } from './pages/EmployeeDetailsPage';
+import { ActivatePage } from './pages/ActivatePage';
+import { AttendancePage } from './pages/AttendancePage';
 import { authClient } from './app/better-auth';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -27,11 +29,13 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/activate" element={<ActivatePage />} />
         <Route path="/*" element={   
           <RequireAuth>
             <DashboardLayout>
               <Routes>
               <Route path="/" element={<DashboardPage />} />
+              <Route path="/attendance" element={<AttendancePage />} />
               <Route path="/departments" element={<DepartmentsPage />} />
               <Route path="/employees" element={<EmployeesPage />} />
               <Route path="/employees/:userId" element={<EmployeeDetailsPage />} />

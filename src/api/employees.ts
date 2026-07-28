@@ -89,3 +89,41 @@ export const assignDepartment = async ({ userId, departmentId }: { userId: strin
   const response = await apiClient.post(`/employees/assignDepartment/${userId}`, { departmentId });
   return response.data;
 };
+
+export const getDocumentUrl = async (userId: string): Promise<{ downloadUrl: string }> => {
+  const response = await apiClient.get(`/employees/getDocumentUrl/${userId}`);
+  return response.data;
+};
+
+export const deleteDocument = async (userId: string): Promise<{ message: string }> => {
+  const response = await apiClient.delete(`/employees/deleteDocument/${userId}`);
+  return response.data;
+};
+
+export const generateSignedUploadUrl = async (fileName: string, contentType: string): Promise<{ uploadUrl: string; key: string }> => {
+  const response = await apiClient.post('/employees/resume/upload-url', { fileName, contentType });
+  return response.data;
+};
+
+export const uploadFileToS3 = async (uploadUrl: string, file: File): Promise<void> => {
+  const res = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': file.type || 'application/pdf',
+    },
+    body: file,
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to upload file to storage: ${res.statusText}`);
+  }
+};
+
+export const sendInvite = async (userId: string): Promise<{ message: string; email?: string }> => {
+  const response = await apiClient.post(`/employees/sendInvite/${userId}`);
+  return response.data;
+};
+
+export const activateAccount = async (token: string): Promise<{ message: string; user?: any }> => {
+  const response = await apiClient.post('/employees/activate', { token });
+  return response.data;
+};

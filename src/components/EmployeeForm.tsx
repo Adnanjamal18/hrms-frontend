@@ -4,13 +4,15 @@ import {
   createEmployee,
   updateEmployee,
   assignDepartment,
+  generateSignedUploadUrl,
+  uploadFileToS3,
   type Employee,
   type CreateEmployeeDTO,
   type UpdateEmployeeDTO,
 } from '../api/employees';
 import { getDepartments } from '../api/departments';
 import { toast } from "sonner";
-import { X, Save, Briefcase, Link as LinkIcon, Building, MapPin, User, Mail, Lock, Phone } from 'lucide-react';
+import { X, Save, Briefcase, Link as LinkIcon, Building, MapPin, User, Mail, Lock, Phone, Upload, FileCheck, Loader2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -54,6 +56,31 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
 
   // Department Assignment
   const [departmentId, setDepartmentId] = useState<string>(getInitialDeptId(employeeToEdit));
+
+  // PDF Resume Upload state
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadingFile(true);
+      setSelectedFileName(file.name);
+
+      const { uploadUrl, key } = await generateSignedUploadUrl(file.name, file.type || 'application/pdf');
+      await uploadFileToS3(uploadUrl, file);
+
+      setResumeLink(key);
+      toast.success(`Resume "${file.name}" uploaded successfully!`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to upload resume file.');
+      setSelectedFileName(null);
+    } finally {
+      setUploadingFile(false);
+    }
+  };
 
   useEffect(() => {
     if (employeeToEdit) {
@@ -360,10 +387,68 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
             <div className="space-y-4">
               <h3 className="text-sm font-medium text-slate-900 flex items-center gap-2 border-b pb-2">
                 <LinkIcon size={16} className="text-primary" />
-                Links & Address
+                Links, Address & Resume Upload
               </h3>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <Label>Resume PDF Document</Label>
+                <div className="border border-dashed border-slate-200 bg-slate-50/50 rounded-xl p-4 flex flex-col items-center justify-center gap-3 text-center transition-colors hover:bg-slate-50 hover:border-slate-300">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                    {uploadingFile ? (
+                      <Loader2 size={20} className="animate-spin text-primary" />
+                    ) : resumeLink ? (
+                      <FileCheck size={20} className="text-emerald-600" />
+                    ) : (
+                      <Upload size={20} className="text-primary" />
+                    )}
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-semibold text-slate-800">
+                      {uploadingFile ? (
+                        'Uploading PDF file...'
+                      ) : resumeLink ? (
+                        <span className="text-emerald-700 font-semibold flex items-center gap-1.5 justify-center">
+                          <FileCheck size={14} /> Resume Uploaded ({selectedFileName || resumeLink})
+                        </span>
+                      ) : (
+                        'Upload Employee Resume (PDF / Document)'
+                      )}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Directly uploads to secure S3 storage
+                    </p>
+                  </div>
+
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleFileUpload}
+                      disabled={uploadingFile}
+                      className="hidden"
+                    />
+                    <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-100 transition-colors">
+                      <Upload size={13} />
+                      {uploadingFile ? 'Uploading...' : resumeLink ? 'Change File' : 'Select PDF File'}
+                    </span>
+                  </label>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="resumeLink" className="text-xs text-slate-500">Stored Key / Link</Label>
+                  <Input
+                    id="resumeLink"
+                    type="text"
+                    value={resumeLink}
+                    onChange={(e) => setResumeLink(e.target.value)}
+                    placeholder="resumes/xyz.pdf or URL"
+                    className="focus-visible:ring-primary text-xs font-mono text-slate-600"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-2">
                 <div className="space-y-2">
                   <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
                   <Input
@@ -376,28 +461,17 @@ export function EmployeeForm({ onClose, employeeToEdit }: Props) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="resumeLink">Resume Link</Label>
-                  <Input
-                    id="resumeLink"
-                    type="url"
-                    value={resumeLink}
-                    onChange={(e) => setResumeLink(e.target.value)}
-                    placeholder="https://drive.google.com/..."
-                    className="focus-visible:ring-primary"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                  <Input
-                    id="address"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Full residential address"
-                    className="pl-9 focus-visible:ring-primary"
-                  />
+                  <Label htmlFor="address">Address</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <Input
+                      id="address"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Full residential address"
+                      className="pl-9 focus-visible:ring-primary"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

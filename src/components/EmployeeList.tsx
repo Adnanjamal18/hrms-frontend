@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getEmployees, deleteEmployee, type Employee } from '../api/employees';
-import { Pencil, Trash2, Users, ArrowUpDown, Search, Eye } from 'lucide-react';
+import { getEmployees, deleteEmployee, sendInvite, type Employee } from '../api/employees';
+import { Pencil, Trash2, Users, ArrowUpDown, Search, Eye, Send, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
 import {
@@ -28,6 +28,38 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
 import { DeleteConfirmModal } from './DeleteConfirmModal';
+import { ViewDocumentButton } from './ViewDocumentButton';
+
+function SendInviteActionButton({ userId, employeeName }: { userId: string; employeeName?: string }) {
+  const [sending, setSending] = useState(false);
+
+  const handleSend = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      setSending(true);
+      const res = await sendInvite(userId);
+      toast.success(res.message || `Invitation sent to ${employeeName || 'employee'}`);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to send invitation';
+      toast.error(msg);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={handleSend}
+      disabled={sending}
+      className="h-8 w-8 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"
+      title="Send Email Invitation"
+    >
+      {sending ? <Loader2 className="h-4 w-4 animate-spin text-emerald-600" /> : <Send className="h-4 w-4" />}
+    </Button>
+  );
+}
 
 interface Props {
   onEdit: (employee: Employee) => void;
@@ -121,6 +153,24 @@ export function EmployeeList({ onEdit }: Props) {
       }
     },
     {
+      accessorKey: "emailVerified",
+      header: "Status",
+      cell: ({ row }) => {
+        const isVerified = (row.original as any).emailVerified;
+        return (
+          <span
+            className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
+              isVerified
+                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                : "bg-amber-50 text-amber-700 border-amber-200"
+            }`}
+          >
+            {isVerified ? "ACTIVE" : "INVITED"}
+          </span>
+        );
+      },
+    },
+    {
       accessorKey: "bankName",
       header: "Bank Name",
       cell: ({ row }) => {
@@ -134,6 +184,16 @@ export function EmployeeList({ onEdit }: Props) {
         const emp = row.original;
         return (
           <div className="flex items-center justify-end gap-2">
+            <SendInviteActionButton
+              userId={emp.id}
+              employeeName={emp.fullName || `User #${emp.id}`}
+            />
+            <ViewDocumentButton
+              userId={emp.id}
+              employeeName={emp.fullName || `User #${emp.id}`}
+              hasResume={!!emp.resumeLink}
+              variant="icon"
+            />
             <Button
               variant="ghost"
               size="icon"

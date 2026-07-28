@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { getEmployeeById } from '../api/employees';
+import { getEmployeeById, sendInvite } from '../api/employees';
 import {
   ArrowLeft,
   Briefcase,
@@ -14,18 +14,42 @@ import {
   Phone,
   Shield,
   Building2,
+  Send,
+  Loader2,
 } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
+import { ViewDocumentButton } from "@/components/ViewDocumentButton";
+import { JoiningChecklistWidget } from '@/components/JoiningChecklistWidget';
 
 export function EmployeeDetailsPage() {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const [sendingInvite, setSendingInvite] = useState(false);
 
   const { data: employee, isLoading, isError } = useQuery({
     queryKey: ['employee', userId],
     queryFn: () => getEmployeeById(userId as string),
     enabled: !!userId,
   });
+
+  const handleSendInvite = async () => {
+    if (!userId || !employee?.email) {
+      toast.error("Employee email not found");
+      return;
+    }
+    try {
+      setSendingInvite(true);
+      const res = await sendInvite(userId);
+      toast.success(res.message || `Invitation sent to ${employee.email}`);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to send invitation email';
+      toast.error(msg);
+    } finally {
+      setSendingInvite(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -63,26 +87,46 @@ export function EmployeeDetailsPage() {
   return (
     <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/employees')}
-          className="h-9 w-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600"
-        >
-          <ArrowLeft size={18} />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
-            {fullName}
-            <span className="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              ID: {employee.id}
-            </span>
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            {username} • {roleName} Profile & HR Information
-          </p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/employees')}
+            className="h-9 w-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600"
+          >
+            <ArrowLeft size={18} />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
+              {fullName}
+              <span className="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                ID: {employee.id}
+              </span>
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              {username} • {roleName} Profile & HR Information
+            </p>
+          </div>
         </div>
+
+        <Button
+          onClick={handleSendInvite}
+          disabled={sendingInvite}
+          className="bg-primary hover:bg-primary/90 text-white gap-2 shadow-xs"
+        >
+          {sendingInvite ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              Sending Invite...
+            </>
+          ) : (
+            <>
+              <Send size={16} />
+              Send Invitation Email
+            </>
+          )}
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -159,9 +203,12 @@ export function EmployeeDetailsPage() {
               <div className="space-y-1">
                 <p className="text-sm font-medium text-slate-500 flex items-center gap-2"><LinkIcon size={14} /> Resume Document</p>
                 {employee.resumeLink ? (
-                  <a href={employee.resumeLink} target="_blank" rel="noreferrer" className="text-primary hover:underline flex items-center gap-1 font-medium">
-                    View Document <ExternalLink size={12} />
-                  </a>
+                  <ViewDocumentButton
+                    userId={employee.id}
+                    employeeName={fullName}
+                    hasResume={!!employee.resumeLink}
+                    variant="link"
+                  />
                 ) : <span className="text-slate-400 italic">Not provided</span>}
               </div>
             </div>
@@ -192,6 +239,9 @@ export function EmployeeDetailsPage() {
               </div>
             </div>
           </div>
+
+          {/* Joining Onboarding Checklist Card */}
+          <JoiningChecklistWidget userId={employee.id} userName={fullName} />
 
         </div>
       </div>

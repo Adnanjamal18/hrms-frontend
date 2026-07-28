@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { MoreHorizontal, Filter, ChevronDown, X, Briefcase, UserCheck } from 'lucide-react';
+import { MoreHorizontal, Filter, ChevronDown, X, Briefcase } from 'lucide-react';
 
 export const UsersList = () => {
   const [employees, setEmployees] = useState([]);
@@ -8,12 +8,10 @@ export const UsersList = () => {
   const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
   
   const [designationInput, setDesignationInput] = useState('');
-  const [employmentTypeInput, setEmploymentTypeInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchEmployees = async () => {
     try {
-      // NOTE: Adjust port/url based on your actual backend URL
       const res = await axios.get('http://localhost:5000/api/employees', { withCredentials: true });
       setEmployees(res.data);
     } catch (error) {
@@ -28,26 +26,20 @@ export const UsersList = () => {
   }, []);
 
   const handleAssign = async (employeeId: number) => {
-    if (!designationInput || !employmentTypeInput) return alert("Please fill both fields!");
+    if (!designationInput) return alert("Please fill designation field!");
     setIsSubmitting(true);
     try {
       // 1. Create Designation
       const desRes = await axios.post('http://localhost:5000/api/designations', { post: designationInput }, { withCredentials: true });
       const designationId = desRes.data.id;
 
-      // 2. Create Employment Type
-      const empRes = await axios.post('http://localhost:5000/api/employment-types', { type: employmentTypeInput }, { withCredentials: true });
-      const employmentTypeId = empRes.data.id;
-
-      // 3. Update Employee
+      // 2. Update Employee
       await axios.put(`http://localhost:5000/api/employees/${employeeId}`, {
         designationId,
-        employmentTypeId
       }, { withCredentials: true });
 
       setActiveMenuId(null);
       setDesignationInput('');
-      setEmploymentTypeInput('');
       fetchEmployees();
     } catch (error) {
       console.error(error);
@@ -81,7 +73,6 @@ export const UsersList = () => {
             <tr>
               <th className="px-6 py-4">Employee</th>
               <th className="px-6 py-4">Designation</th>
-              <th className="px-6 py-4">Employment Type</th>
               <th className="px-6 py-4 text-right">Actions</th>
             </tr>
           </thead>
@@ -104,16 +95,6 @@ export const UsersList = () => {
                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
                       <Briefcase size={12} className="mr-1.5" />
                       {emp.designation.post}
-                    </span>
-                  ) : (
-                    <span className="text-slate-400 italic text-xs bg-slate-100 px-2.5 py-1 rounded-full">Unassigned</span>
-                  )}
-                </td>
-                <td className="px-6 py-4">
-                  {emp.employmentType ? (
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
-                      <UserCheck size={12} className="mr-1.5" />
-                      {emp.employmentType.type}
                     </span>
                   ) : (
                     <span className="text-slate-400 italic text-xs bg-slate-100 px-2.5 py-1 rounded-full">Unassigned</span>
@@ -148,16 +129,6 @@ export const UsersList = () => {
                             onChange={(e) => setDesignationInput(e.target.value)}
                           />
                         </div>
-                        <div>
-                          <label className="block text-xs font-medium text-slate-500 mb-1">Employment Type Name</label>
-                          <input 
-                            type="text" 
-                            className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                            placeholder="e.g. Full-Time"
-                            value={employmentTypeInput}
-                            onChange={(e) => setEmploymentTypeInput(e.target.value)}
-                          />
-                        </div>
                         <div className="flex space-x-2 pt-2">
                           <button 
                             onClick={() => setActiveMenuId(null)}
@@ -183,7 +154,7 @@ export const UsersList = () => {
             
             {employees.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                <td colSpan={3} className="px-6 py-12 text-center text-slate-500">
                   No users found.
                 </td>
               </tr>
