@@ -10,13 +10,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { Building2, Home, Users, Settings, Briefcase, FileText, ChevronUp, User2, Calendar } from "lucide-react"
+import { Building2, Home, Users, Settings, Briefcase, FileText, ChevronUp, User2, Clock, Calendar } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { authClient } from "@/app/better-auth"
 
 const items = [
   { title: "Dashboard", url: "/", icon: Home },
+  { title: "Attendance", url: "/attendance", icon: Clock },
   { title: "Departments", url: "/departments", icon: Building2 },
   { title: "Employees", url: "/employees", icon: Users },
   { title: "Projects", url: "/projects", icon: Briefcase },
