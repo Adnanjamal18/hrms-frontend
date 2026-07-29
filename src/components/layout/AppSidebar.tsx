@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { Building2, Home, Users, Settings, Briefcase, FileText, ChevronUp, User2, Clock } from "lucide-react"
+import { Building2, Home, Users, Settings, Briefcase, FileText, ChevronUp, User2, Clock, Calendar } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { authClient } from "@/app/better-auth"
@@ -21,6 +21,7 @@ const items = [
   { title: "Departments", url: "/departments", icon: Building2 },
   { title: "Employees", url: "/employees", icon: Users },
   { title: "Projects", url: "/projects", icon: Briefcase },
+  { title: "Leaves", url: "/leaves", icon: Calendar },
   { title: "Reports", url: "/reports", icon: FileText },
   { title: "Settings", url: "/settings", icon: Settings },
 ]
