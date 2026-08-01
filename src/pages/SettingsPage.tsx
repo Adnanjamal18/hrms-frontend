@@ -4,6 +4,8 @@ import { DesignationsTab } from '../features/settings/DesignationsTab';
 import { EmploymentTypesTab } from '../features/settings/EmploymentTypesTab';
 import { LeaveTypesTab } from '../features/settings/LeaveTypesTab';
 import { RolesTab } from '../features/settings/RolesTab';
+import { HolidaysTab } from '../features/settings/HolidaysTab';
+
 
 export const SettingsPage: React.FC = () => {
   return (
@@ -17,6 +19,7 @@ export const SettingsPage: React.FC = () => {
           <TabsTrigger value="employment">Employment Types</TabsTrigger>
           <TabsTrigger value="leavetypes">Leave Types</TabsTrigger>
           <TabsTrigger value="roles">Roles</TabsTrigger>
+          <TabsTrigger value="holidays">Holidays</TabsTrigger>
         </TabsList>
         <TabsContent value="designations" className="space-y-4">
           <DesignationsTab />
@@ -30,6 +33,10 @@ export const SettingsPage: React.FC = () => {
         <TabsContent value="roles" className="space-y-4">
           <RolesTab />
         </TabsContent>
+        <TabsContent value="holidays" className="space-y-4">
+          <HolidaysTab />
+        </TabsContent>
+
       </Tabs>
     </div>
   );

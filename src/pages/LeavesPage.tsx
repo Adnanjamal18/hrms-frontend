@@ -18,6 +18,7 @@ export const LeavesPage: React.FC = () => {
   const { data: session } = authClient.useSession();
   const [leaves, setLeaves] = useState<any[]>([]);
   const [pendingLeaves, setPendingLeaves] = useState<any[]>([]);
+  const [holidays, setHolidays] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Form State
@@ -37,6 +38,7 @@ export const LeavesPage: React.FC = () => {
       fetchPendingLeaves();
       fetchDepartments();
       fetchLeaveTypes();
+      fetchHolidays();
     }
   }, [session]);
 
@@ -71,6 +73,13 @@ export const LeavesPage: React.FC = () => {
     try {
       const res = await axios.get('http://localhost:5000/api/leave-types', { withCredentials: true });
       setLeaveTypes(res.data);
+    } catch (e) { console.error(e); }
+  };
+
+  const fetchHolidays = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/holidays', { withCredentials: true });
+      setHolidays(res.data);
     } catch (e) { console.error(e); }
   };
 
@@ -251,6 +260,40 @@ export const LeavesPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      <div className="bg-white rounded-lg border border-slate-200 p-6 mb-8">
+        <div className="mb-4">
+          <h3 className="text-lg font-medium text-blue-600">Upcoming Holidays</h3>
+          <p className="text-sm text-slate-500">Company-wide holidays and days off</p>
+        </div>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Holiday Name</TableHead>
+                <TableHead>Description</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {holidays.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center h-24">No upcoming holidays.</TableCell>
+                </TableRow>
+              ) : (
+                holidays.map((holiday) => (
+                  <TableRow key={holiday.id}>
+                    <TableCell className="font-medium">{new Date(holiday.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{holiday.name}</TableCell>
+                    <TableCell className="text-slate-500">{holiday.description || "-"}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
 
       <div className="bg-white rounded-lg border border-slate-200 p-6">
         <div className="mb-4">

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAttendanceHistory, getAttendanceReport } from '../api/attendance';
 import { AttendanceWidget } from '../components/AttendanceWidget';
+import { authClient } from '@/app/better-auth';
 import {
   Clock,
   Calendar,
@@ -29,8 +30,8 @@ export function AttendancePage() {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
-  // Current session / mock user ID for testing daily checkin
-  const currentUserId = 'cms28eesj00027cu4m2qnuo3j';
+  const { data: session } = authClient.useSession();
+  const currentUserId = session?.user?.id || '';
 
   const { data: report, isLoading: isReportLoading } = useQuery({
     queryKey: ['attendance-report', selectedUserId, startDate, endDate],

@@ -10,6 +10,7 @@ import { EmployeesPage } from './pages/EmployeesPage';
 import { EmployeeDetailsPage } from './pages/EmployeeDetailsPage';
 import { ActivatePage } from './pages/ActivatePage';
 import { AttendancePage } from './pages/AttendancePage';
+import { ReportsPage } from './pages/ReportsPage';
 import { authClient } from './app/better-auth';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -43,6 +44,7 @@ function App() {
               <Route path="/employees/:userId" element={<EmployeeDetailsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/leaves" element={<LeavesPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
             </Routes>
           </DashboardLayout>
           </RequireAuth>
