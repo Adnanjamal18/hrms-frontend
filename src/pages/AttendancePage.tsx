@@ -9,9 +9,6 @@ import {
   CheckCircle2,
   AlertTriangle,
   TrendingUp,
-  Search,
-  Filter,
-  UserCheck,
   FileSpreadsheet,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -26,14 +23,14 @@ import {
 } from '@/components/ui/table';
 
 export function AttendancePage() {
-  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [selectedUserId] = useState<string>('');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
   const { data: session } = authClient.useSession();
   const currentUserId = session?.user?.id || '';
 
-  const { data: report, isLoading: isReportLoading } = useQuery({
+  const { data: report } = useQuery({
     queryKey: ['attendance-report', selectedUserId, startDate, endDate],
     queryFn: () => getAttendanceReport(selectedUserId, startDate, endDate),
   });

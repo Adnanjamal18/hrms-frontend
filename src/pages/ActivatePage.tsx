@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { activateAccount } from '../api/employees';
 import { authClient } from '../app/better-auth';
-import { CheckCircle2, XCircle, Sparkles, ArrowRight, Building2, ShieldCheck, UserCheck, LogOut } from 'lucide-react';
+import { CheckCircle2, XCircle, Sparkles, Building2, ShieldCheck, UserCheck, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function ActivatePage() {

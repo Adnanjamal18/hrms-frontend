@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getChecklist, updateChecklist, type JoiningChecklist } from '../api/checklist';
-import { CheckSquare, Square, CheckCircle2, Clock, ShieldCheck, Loader2, Sparkles, AlertCircle } from 'lucide-react';
+import { getChecklist, updateChecklist } from '../api/checklist';
+import { CheckSquare, Square, ShieldCheck, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
