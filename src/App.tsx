@@ -14,6 +14,7 @@ import { ReportsPage } from './pages/ReportsPage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectDetailsPage } from './pages/ProjectDetailsPage';
 import { RecruitmentPage } from './pages/RecruitmentPage';
+import { PayrollPage } from './pages/PayrollPage';
 import { authClient } from './app/better-auth';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -51,6 +52,7 @@ function App() {
               <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/projects/:projectId" element={<ProjectDetailsPage />} />
               <Route path="/recruitment" element={<RecruitmentPage />} />
+              <Route path="/payroll" element={<PayrollPage />} />
             </Routes>
           </DashboardLayout>
           </RequireAuth>
