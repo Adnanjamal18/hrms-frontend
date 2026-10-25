@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTodayStatus, checkIn, checkOut } from '../api/attendance';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { LogIn, LogOut, Clock, CheckCircle2, AlertCircle, Loader2, Sparkles } from 'lucide-react';
+import { LogIn, LogOut, Clock, CheckCircle2, Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
@@ -156,11 +156,11 @@ export function AttendanceWidget({ userId }: Props) {
           </div>
           <h3 className="text-lg font-bold text-white">Attendance Completed Today</h3>
           <p className="text-slate-400 text-xs">
-            Check-In: <span className="text-white font-mono">{new Date(record.checkIn).toLocaleTimeString()}</span> • Check-Out:{' '}
-            <span className="text-white font-mono">{new Date(record.checkOut!).toLocaleTimeString()}</span>
+            Check-In: <span className="text-white font-mono">{record?.checkIn ? new Date(record.checkIn).toLocaleTimeString() : '--'}</span> • Check-Out:{' '}
+            <span className="text-white font-mono">{record?.checkOut ? new Date(record.checkOut).toLocaleTimeString() : '--'}</span>
           </p>
           <div className="inline-block mt-2 px-3 py-1 rounded-full bg-primary/20 text-primary text-xs font-bold border border-primary/30">
-            Total Work Hours: {record.workHours || 0} hrs
+            Total Work Hours: {record?.workHours || 0} hrs
           </div>
         </div>
       )}

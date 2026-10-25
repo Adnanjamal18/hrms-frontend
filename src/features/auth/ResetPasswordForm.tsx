@@ -20,7 +20,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onBackToSi
     setSuccess(false);
 
     try {
-      const { data, error: resetError } = await authClient.forgetPassword({
+      const { error: resetError } = await (authClient as any).forgetPassword({
         email,
         redirectTo: window.location.origin + '/reset-password',
       });

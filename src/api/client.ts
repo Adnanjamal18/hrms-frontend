@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const apiClient = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: 'https://hrms-backend-latest-chv2.onrender.com',
   headers: {
     'Content-Type': 'application/json',
   },

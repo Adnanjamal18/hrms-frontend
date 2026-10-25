@@ -92,7 +92,7 @@ export function DepartmentForm({ onClose, departmentToEdit }: Props) {
       if (selectedManagerId && createdDept?.id) {
         assignManagerMutation.mutate({
           departmentId: createdDept.id,
-          managerId: Number(selectedManagerId),
+          managerId: selectedManagerId,
         });
       }
       toast.success("Department created successfully!");
@@ -112,7 +112,7 @@ export function DepartmentForm({ onClose, departmentToEdit }: Props) {
       if (selectedManagerId && departmentToEdit?.id) {
         assignManagerMutation.mutate({
           departmentId: departmentToEdit.id,
-          managerId: Number(selectedManagerId),
+          managerId: selectedManagerId,
         });
       }
       toast.success("Department updated successfully!");

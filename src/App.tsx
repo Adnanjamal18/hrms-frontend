@@ -10,6 +10,12 @@ import { EmployeesPage } from './pages/EmployeesPage';
 import { EmployeeDetailsPage } from './pages/EmployeeDetailsPage';
 import { ActivatePage } from './pages/ActivatePage';
 import { AttendancePage } from './pages/AttendancePage';
+import { ReportsPage } from './pages/ReportsPage';
+import { ProjectsPage } from './pages/ProjectsPage';
+import { ProjectDetailsPage } from './pages/ProjectDetailsPage';
+import { RecruitmentPage } from './pages/RecruitmentPage';
+import { PayrollPage } from './pages/PayrollPage';
+import { SelfServicePage } from './pages/SelfServicePage';
 import { authClient } from './app/better-auth';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -43,6 +49,12 @@ function App() {
               <Route path="/employees/:userId" element={<EmployeeDetailsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/leaves" element={<LeavesPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/projects/:projectId" element={<ProjectDetailsPage />} />
+              <Route path="/recruitment" element={<RecruitmentPage />} />
+              <Route path="/payroll" element={<PayrollPage />} />
+              <Route path="/self-service" element={<SelfServicePage />} />
             </Routes>
           </DashboardLayout>
           </RequireAuth>
